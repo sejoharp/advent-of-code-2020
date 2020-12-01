@@ -1,4 +1,4 @@
-(ns advent-of-code-2020.core
+(ns advent-of-code-2020.day1
   (:gen-class))
 
 (defn -main
