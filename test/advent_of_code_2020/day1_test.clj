@@ -82,7 +82,8 @@
   (testing "finds number that sums up to 2020"
     (let [expenses (read-expenses "resources/input-day1")
           summands (find-summands expenses)]
-      (is (= summands [1999 21]))))
+      (is (= summands [1999 21])))))
+(deftest day1-task2
   (testing "multiplies summands"
     (let [expenses (read-expenses "resources/input-day1")
           summands (find-summands expenses)
@@ -96,5 +97,4 @@
     (let [expenses (read-expenses "resources/input-day1")
           summands (find-three-summands expenses)
           product (multiply-3-summands summands)]
-      (is (= product 193416912))))
-  )
+      (is (= product 193416912)))))
