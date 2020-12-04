@@ -182,7 +182,7 @@
   (testing "validates pid field"
     (is (= (valid-pid? {:pid "000000001"}) true))
     (is (= (valid-pid? {:pid "0123456789"}) false)))
-  (testing "detects invalid passport"
+  (testing "validates passport"
     (let [invalid-input {:eyr "1972" :cid "100" :hcl "#18171d" :ecl "amb" :hgt "170" :pid "186cm" :iyr "2018" :byr "1926"}
           valid-input {:pid "087499704" :hgt "74in" :ecl "grn" :iyr "2012" :eyr "2030" :byr "1980" :hcl "#623a2f"}]
       (is (= (passport-rule-compliant? invalid-input) false))
