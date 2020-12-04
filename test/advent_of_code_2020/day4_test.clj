@@ -92,7 +92,9 @@
 (defn valid-year?
   [field key min max]
   (let [value (key field)]
-    (<= min (Integer/parseInt value) max)))
+    (if (nil? value)
+      false
+      (<= min (Integer/parseInt value) max))))
 
 (defn valid-byr?
   [field]
@@ -117,6 +119,7 @@
   [field]
   (let [value (:hgt field)]
     (cond
+      (nil? value) false
       (str/ends-with? value "in") (valid-hgt-unit? value "in" 59 76)
       (str/ends-with? value "cm") (valid-hgt-unit? value "cm" 150 193)
       :else false
@@ -126,7 +129,9 @@
   [field]
   (let [value (:hcl field)
         pattern #"(^[#])([0-9]|[a-f]){6}"]
-    (not (nil? (re-matches pattern value)))))
+    (if (nil? value)
+      false
+      (not (nil? (re-matches pattern value))))))
 
 (defn valid-ecl?
   [field]
@@ -138,20 +143,22 @@
   [field]
   (let [value (:pid field)
         pattern #"[0-9]{9}"]
-    (not (nil? (re-matches pattern value)))))
+    (if (nil? value)
+      false
+      (not (nil? (re-matches pattern value))))))
 
 (defn passport-rule-compliant?
   [passport]
-  (and (passport-valid? passport)
-       (valid-byr? passport)
-       (valid-iyr? passport)
-       (valid-eyr? passport)
-       (valid-hgt? passport)
-       (valid-hcl? passport)
-       (valid-ecl? passport)
-       (valid-pid? passport)
-       (valid-byr? passport)
-       ))
+  (and
+    (valid-byr? passport)
+    (valid-iyr? passport)
+    (valid-eyr? passport)
+    (valid-hgt? passport)
+    (valid-hcl? passport)
+    (valid-ecl? passport)
+    (valid-pid? passport)
+    (valid-byr? passport)
+    ))
 
 (defn count-rule-compliant-passports
   [input]
@@ -164,24 +171,28 @@
 (deftest day4-task2
   (testing "validates byr field"
     (is (true? (valid-byr? {:byr "2002"})))
-    (is (false? (valid-byr? {:byr "2003"}))))
-  (testing "detects valid hgt field"
-    (is (true? (valid-hgt? {:hgt "60in"})))
-    (is (true? (valid-hgt? {:hgt "193cm"}))))
+    (is (false? (valid-byr? {:byr "2003"})))
+    (is (false? (valid-byr? {}))))
   (testing "validates hgt field"
+    (is (true? (valid-hgt? {:hgt "60in"})))
+    (is (true? (valid-hgt? {:hgt "193cm"})))
     (is (false? (valid-hgt? {:hgt "190in"})))
-    (is (false? (valid-hgt? {:hgt "190"}))))
+    (is (false? (valid-hgt? {:hgt "190"})))
+    (is (false? (valid-hgt? {}))))
   (testing "validates hcl field"
     (is (true? (valid-hcl? {:hcl "#123abc"})))
     (is (false? (valid-hcl? {:hcl "#123abz"})))
     (is (false? (valid-hcl? {:hcl "#123abcc"})))
-    (is (false? (valid-hcl? {:hcl "123abc"}))))
+    (is (false? (valid-hcl? {:hcl "123abc"})))
+    (is (false? (valid-hcl? {}))))
   (testing "validates ecl field"
     (is (true? (valid-ecl? {:ecl "brn"})))
-    (is (false? (valid-ecl? {:ecl "wat"}))))
+    (is (false? (valid-ecl? {:ecl "wat"})))
+    (is (false? (valid-ecl? {}))))
   (testing "validates pid field"
     (is (true? (valid-pid? {:pid "000000001"})))
-    (is (false? (valid-pid? {:pid "0123456789"}))))
+    (is (false? (valid-pid? {:pid "0123456789"})))
+    (is (false? (valid-pid? {}))))
   (testing "validates passport"
     (let [invalid-input {:eyr "1972" :cid "100" :hcl "#18171d" :ecl "amb" :hgt "170" :pid "186cm" :iyr "2018" :byr "1926"}
           valid-input {:pid "087499704" :hgt "74in" :ecl "grn" :iyr "2012" :eyr "2030" :byr "1980" :hcl "#623a2f"}]
