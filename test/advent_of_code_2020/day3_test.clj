@@ -1,5 +1,6 @@
 (ns advent-of-code-2020.day3-test
-  (:require [clojure.test :refer :all]))
+  (:require [clojure.test :refer :all]
+            [clojure.string :as str]))
 
 ; parse every line as an array
 ; the input is then a array of array
@@ -32,28 +33,27 @@
   (let [path (get row (calculate-position row position))]
     (= path "#")))
 
-(defn square?
+(defn tree?-to-number
   [row position]
-  (let [path (get row (calculate-position row position))]
-    (= path ".")))
-
-(defn bool-to-count
-  [detect-function row position]
-  (if (detect-function row position)
+  (if (tree? row position)
     1
     0)
   )
 
 (defn traverse-path
-  [map tree-count square-count position]
-  (if (empty? map)
-    {:trees tree-count :squares square-count}
+  [world tree-count position right-offset down-offset]
+  (if (< (count (drop down-offset world)) down-offset)
+    tree-count
     ;TODO: what happens when I use a let block to calculate new tree and square count? Does tail recursion still work?
-    (traverse-path
-      (rest map)
-      (+ tree-count (bool-to-count tree? (first map) (+ position 3)))
-      (+ square-count (bool-to-count square? (first map) (+ position 3)))
-      (+ position 3))
+    (let [current-position (+ position right-offset)
+          current-world (drop down-offset world)
+          new-tree-count (+ tree-count (tree?-to-number (first current-world) current-position))]
+      (traverse-path
+        current-world
+        new-tree-count
+        current-position
+        right-offset
+        down-offset))
     )
   )
 
@@ -70,11 +70,6 @@
           expected true
           actual (tree? input 1)]
       (is (= actual expected))))
-  (testing "detect square"
-    (let [input ["." "#" "."]
-          expected true
-          actual (square? input 2)]
-      (is (= actual expected))))
   (testing "calculate position on overlapping row"
     (let [row ["." "#" "."]
           position 3
@@ -87,51 +82,118 @@
           expected 1
           actual (calculate-position row position)]
       (is (= actual expected))))
-  (testing "detect square on expanded row"
-    (let [input ["." "#" "."]
-          expected true
-          actual (square? input 3)]
-      (is (= actual expected))))
   (testing "detect tree on expanded row"
     (let [input ["." "#" "."]
           expected true
           actual (tree? input 4)]
       (is (= actual expected))))
   (testing "detect empty map"
-    (let [map []
-          expected {:trees 0 :squares 0}
-          actual (traverse-path map 0 0 3)]
+    (let [world []
+          start 3
+          expected 0
+          actual (traverse-path world 0 start 3 1)]
       (is (= actual expected))))
   (testing "find tree in map"
-    (let [map [["." "." "#"]]
-          expected {:trees 1 :squares 0}
-          position 2
-          actual (traverse-path map 0 0 position)]
+    (let [world [["." "." "#"]
+                 ["#" "." "#"]]
+          expected 1
+          start 0
+          actual (traverse-path world 0 start 2 1)]
       (is (= actual expected))))
-  (testing "find square in map"
-    (let [map [["." "." "#"]]
-          position 1
-          expected {:trees 0 :squares 1}
-          actual (traverse-path map 0 0 position)]
-      (is (= actual expected))))
-  (testing "find trees and squares"
-    (let [map [["#" "." "#"]
-               ["." "#" "#"]
-               ["." "." "#"]]
-          position 0
-          expected {:trees 1 :squares 2}
-          actual (traverse-path map 0 0 position)]
+  (testing "find trees"
+    (let [world [["#" "." "#"]
+                 ["." "#" "#"]
+                 ["." "." "."]]
+          start 1
+          expected 0
+          actual (traverse-path world 0 start 2 1)]
       (is (= actual expected))))
   (testing "find trees and squares"
     (let [map (parse-input "resources/input-day3-example")
-          position 0
-          expected {:trees 7 :squares 3}
-          actual (traverse-path (rest map) 0 0 position)]
+          start 0
+          expected 7
+          actual (traverse-path map 0 start 3 1)]
       (is (= actual expected))))
   (testing "find trees for task 1"
     (let [map (parse-input "resources/input-day3")
-          position 0
-          expected {:squares 36 :trees 286}
-          actual (traverse-path (rest map) 0 0 position)]
+          start 0
+          expected 286
+          actual (traverse-path map 0 start 3 1)]
+      (is (= actual expected))))
+  )
+
+(deftest day3-task2
+  (testing "detects finish when we skip rows"
+    (let [world [["#" "." "#"]
+                 ["." "#" "#"]]
+          start 0
+          right-offset 1
+          down-offset 2
+          expected 0
+          actual (traverse-path world 0 start right-offset down-offset)]
+      (is (= (:trees actual) (:trees expected)))))
+  (testing "find trees"
+    (let [world [["#" "." "#"]
+                 ["." "." "#"]
+                 ["." "." "#"]]
+          start 0
+          right-offset 1
+          down-offset 1
+          expected 1
+          actual (traverse-path world 0 start right-offset down-offset)]
+      (is (= actual expected))))
+  (testing "find trees"
+    (let [world (parse-input "resources/input-day3-example")
+          start 0
+          right-offset 1
+          down-offset 1
+          expected 2
+          actual (traverse-path world 0 start right-offset down-offset)]
+      (is (= (:trees actual) (:trees expected)))))
+  (testing "find trees"
+    (let [world (parse-input "resources/input-day3-example")
+          start 0
+          right-offset 5
+          down-offset 1
+          expected 3
+          actual (traverse-path world 0 start right-offset down-offset)]
+      (is (= (:trees actual) (:trees expected)))))
+  (testing "find trees"
+    (let [world (parse-input "resources/input-day3-example")
+          start 0
+          right-offset 1
+          down-offset 2
+          expected 2
+          actual (traverse-path world 0 start right-offset down-offset)]
+      (is (= (:trees actual) (:trees expected)))))
+  (testing "multiply all trees for task 2 example"
+    (let [world (parse-input "resources/input-day3-example")
+          start 0
+          paths [
+                 {:right 1 :down 1}
+                 {:right 3 :down 1}
+                 {:right 5 :down 1}
+                 {:right 7 :down 1}
+                 {:right 1 :down 2}
+                 ]
+          expected 336
+          actual (->> paths
+                      (map #(traverse-path world 0 start (:right %) (:down %)))
+                      (reduce *)
+                      )]
+      (is (= actual expected))))
+  (testing "multiply all trees for task 2"
+    (let [world (parse-input "resources/input-day3")
+          start 0
+          paths [{:right 1 :down 1}
+                 {:right 3 :down 1}
+                 {:right 5 :down 1}
+                 {:right 7 :down 1}
+                 {:right 1 :down 2}]
+          expected 3638606400
+          actual (->> paths
+                      (map #(traverse-path world 0 start (:right %) (:down %)))
+                      (reduce *)
+                      )]
       (is (= actual expected))))
   )
