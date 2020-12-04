@@ -162,86 +162,31 @@
        count))
 
 (deftest day4-task2
-  (testing "detects valid byr field"
-    (let [input {:byr "2002"}
-          expected true
-          actual (valid-byr? input)]
-      (is (= actual expected))))
-  (testing "detects invalid byr field"
-    (let [input {:byr "2003"}
-          expected false
-          actual (valid-byr? input)]
-      (is (= actual expected))))
+  (testing "validates byr field"
+    (is (= (valid-byr? {:byr "2002"}) true))
+    (is (= (valid-byr? {:byr "2003"}) false)))
   (testing "detects valid hgt field"
-    (let [input {:hgt "60in"}
-          expected true
-          actual (valid-hgt? input)]
-      (is (= actual expected))))
-  (testing "detects valid hgt field"
-    (let [input {:hgt "193cm"}
-          expected true
-          actual (valid-hgt? input)]
-      (is (= actual expected))))
-  (testing "detects invalid hgt field"
-    (let [input {:hgt "190in"}
-          expected false
-          actual (valid-hgt? input)]
-      (is (= actual expected))))
-  (testing "detects invalid hgt field"
-    (let [input {:hgt "190"}
-          expected false
-          actual (valid-hgt? input)]
-      (is (= actual expected))))
-  (testing "detects valid hcl field"
-    (let [input {:hcl "#123abc"}
-          expected true
-          actual (valid-hcl? input)]
-      (is (= actual expected))))
-  (testing "detects invalid hcl field"
-    (let [input {:hcl "#123abz"}
-          expected false
-          actual (valid-hcl? input)]
-      (is (= actual expected))))
-  (testing "detects invalid hcl field"
-    (let [input {:hcl "#123abcc"}
-          expected false
-          actual (valid-hcl? input)]
-      (is (= actual expected))))
-  (testing "detects invalid hcl field"
-    (let [input {:hcl "123abc"}
-          expected false
-          actual (valid-hcl? input)]
-      (is (= actual expected))))
-  (testing "detects valid ecl field"
-    (let [input {:ecl "brn"}
-          expected true
-          actual (valid-ecl? input)]
-      (is (= actual expected))))
-  (testing "detects invalid ecl field"
-    (let [input {:ecl "wat"}
-          expected false
-          actual (valid-ecl? input)]
-      (is (= actual expected))))
-  (testing "detects valid pid field"
-    (let [input {:pid "000000001"}
-          expected true
-          actual (valid-pid? input)]
-      (is (= actual expected))))
-  (testing "detects invalid pid field"
-    (let [input {:pid "0123456789"}
-          expected false
-          actual (valid-pid? input)]
-      (is (= actual expected))))
+    (is (= (valid-hgt? {:hgt "60in"}) true))
+    (is (= (valid-hgt? {:hgt "193cm"}) true)))
+  (testing "validates hgt field"
+    (is (= (valid-hgt? {:hgt "190in"}) false))
+    (is (= (valid-hgt? {:hgt "190"}) false)))
+  (testing "validates hcl field"
+    (is (= (valid-hcl? {:hcl "#123abc"}) true))
+    (is (= (valid-hcl? {:hcl "#123abz"}) false))
+    (is (= (valid-hcl? {:hcl "#123abcc"}) false))
+    (is (= (valid-hcl? {:hcl "123abc"}) false)))
+  (testing "validates ecl field"
+    (is (= (valid-ecl? {:ecl "brn"}) true))
+    (is (= (valid-ecl? {:ecl "wat"}) false)))
+  (testing "validates pid field"
+    (is (= (valid-pid? {:pid "000000001"}) true))
+    (is (= (valid-pid? {:pid "0123456789"}) false)))
   (testing "detects invalid passport"
-    (let [input {:eyr "1972" :cid "100" :hcl "#18171d" :ecl "amb" :hgt "170" :pid "186cm" :iyr "2018" :byr "1926"}
-          expected false
-          actual (passport-rule-compliant? input)]
-      (is (= actual expected))))
-  (testing "detects valid passport"
-    (let [input {:pid "087499704" :hgt "74in" :ecl "grn" :iyr "2012" :eyr "2030" :byr "1980" :hcl "#623a2f"}
-          expected true
-          actual (passport-rule-compliant? input)]
-      (is (= actual expected))))
+    (let [invalid-input {:eyr "1972" :cid "100" :hcl "#18171d" :ecl "amb" :hgt "170" :pid "186cm" :iyr "2018" :byr "1926"}
+          valid-input {:pid "087499704" :hgt "74in" :ecl "grn" :iyr "2012" :eyr "2030" :byr "1980" :hcl "#623a2f"}]
+      (is (= (passport-rule-compliant? invalid-input) false))
+      (is (= (passport-rule-compliant? valid-input) true))))
   (testing "counts valid passworts in example"
     (let [input (slurp "resources/input-day4-example")
           expected 2
