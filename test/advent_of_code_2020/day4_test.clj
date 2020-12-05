@@ -4,13 +4,6 @@
 
 (def required-fields [:byr :iyr :eyr :hgt :hcl :ecl :pid])
 
-(comment
-  (-> (slurp "resources/input-day4-example")
-      (str/replace #"\n\n" "|")
-      (str/replace #"\n" " ")
-      (str/split #"\|")
-      ))
-
 (defn parse-input
   [fields-string]
   (-> fields-string
