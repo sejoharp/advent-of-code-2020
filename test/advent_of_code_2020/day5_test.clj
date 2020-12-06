@@ -46,6 +46,7 @@
        (map position)
        highest-seat)
   )
+
 (deftest day5-task1
   (testing "transforms F and B into binay number"
     (is (= (to-row "FBFBBFF") 44)))
@@ -63,3 +64,27 @@
     (let [file "resources/input-day5"]
       (is (= (get-highest-seat-id-from-file file) 955)))))
 
+(defn free-seat-id [seats]
+  (cond
+    (= (count seats) 1) (first seats)
+    (= (- (first seats) (second seats)) 2) (- (first seats) 1)
+    :else (free-seat-id (rest seats)))
+  )
+
+(defn get-free-seat-id-from-file [file]
+  (->> file
+       slurp
+       str/split-lines
+       (map position)
+       (map :seat-id)
+       (sort >)
+       free-seat-id)
+  )
+
+(deftest day5-task2
+  (testing "detects fee seat"
+    (is (= (free-seat-id [5 3]) 4)))
+  (testing "get free seat for task 2"
+    (let [file "resources/input-day5"]
+      (is (= (get-free-seat-id-from-file file) 569))))
+  )
