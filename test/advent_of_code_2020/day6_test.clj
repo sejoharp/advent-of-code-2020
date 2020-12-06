@@ -55,14 +55,14 @@
 (defn count-yes-answers [answer-group]
   (count-yes-answers-recursive answer-group (first answer-group) 0))
 
-(defn count-all-yes-answers [grouped-answers]
+(defn count-all-yes-answers-per-group [grouped-answers]
   (map count-yes-answers grouped-answers))
 
 (defn count-all-answers-task2 [file]
   (->> file
        slurp
        group-answers-task2
-       count-all-yes-answers
+       count-all-yes-answers-per-group
        (reduce +)))
 
 (deftest day6-task2
@@ -77,7 +77,7 @@
   (testing "count group answers"
     (let [input [["abc"] ["a" "b" "c"] ["ab" "ac"] ["a" "a" "a" "a"] ["b"]]
           expected [3 0 1 1 1]]
-      (is (= (count-all-yes-answers input) expected))))
+      (is (= (count-all-yes-answers-per-group input) expected))))
   (testing "count all answers"
     (let [input "resources/input-day6"]
       (is (= (count-all-answers-task2 input) 3398)))))
