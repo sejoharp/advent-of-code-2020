@@ -1,6 +1,5 @@
 (ns advent-of-code-2020.day2-test
   (:require [clojure.test :refer :all]
-            [advent-of-code-2020.day2 :refer :all]
             [clojure.string :as str]))
 
 ;https://clojuredocs.org/clojure.core/partition-by

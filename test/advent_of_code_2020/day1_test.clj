@@ -1,6 +1,5 @@
 (ns advent-of-code-2020.day1-test
   (:require [clojure.test :refer :all]
-            [advent-of-code-2020.day1 :refer :all]
             [clojure.string :as str]))
 
 (defn read-expenses
